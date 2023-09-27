@@ -87,10 +87,8 @@ const AdditionalQuestion = () => {
   };
 
   const handleSelectTime = (index: number, time: string) => {
-    console.log(time);
     let prevData = [...data];
 
-    console.log(prevData);
     prevData[index]["video_time"] = time;
   };
 

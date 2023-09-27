@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import Template from "../../components/template";
 import { type PersonalInfo, Data } from "../../libs/types";
-// import { Switch } from "../../components/Switch";
 import Question from "../../components/Questions";
 import edit from "../../assets/image 156.svg";
 import { Switch } from "antd";
@@ -15,6 +14,17 @@ export const PersonalInfomation = () => {
       title: "Seconds",
     },
   ];
+
+  const customSwitchStyles = {
+    backgroundColor: "#FFF",
+    border: "1px solid #CCCCCC",
+    borderColor: "#CCCCCC",
+
+    "&.ant-switch-checked": {
+      backgroundColor: "#087B2F",
+    },
+  };
+
   const [isAddQuestion, setIsAddQuestion] = useState<boolean>(false);
   const [data, setData] = useState<Data[]>([]);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -148,10 +158,7 @@ export const PersonalInfomation = () => {
   };
 
   const handleSelectTime = (index: number, time: string) => {
-    console.log(time);
     let prevData = [...data];
-
-    console.log(prevData);
     prevData[index]["video_time"] = time;
   };
 
@@ -171,8 +178,6 @@ export const PersonalInfomation = () => {
     setData(prevData);
     setSelectedIndex(null);
   };
-
-  console.log(personalInfo);
 
   return (
     <div>
@@ -238,11 +243,14 @@ export const PersonalInfomation = () => {
                           Internal
                         </p>
                       </div>
-                      <div
-                        className="flex gap-4"
-                        onClick={() => handleToggleSwitch(index)}
-                      >
-                        <Switch defaultChecked />
+                      <div className="flex gap-4">
+                        <div onClick={() => handleToggleSwitch(index)}>
+                          <Switch
+                            defaultChecked
+                            style={customSwitchStyles}
+                            className="custom-switch"
+                          />
+                        </div>
 
                         <p className="text-[#666] text-base font-normal leading-6 font-[Noto Sans]">
                           {info?.hide ? "Show" : "Hide"}
