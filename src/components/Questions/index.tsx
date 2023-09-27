@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Template from "../template";
-import { type QuestionsProps, Data } from "../../libs/types";
+import { type QuestionsProps } from "../../libs/types";
 
 const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
   const [questionData, setQuestionData] = useState({
@@ -79,17 +78,17 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
     setQuestionData((prev: any) => {
       return {
         ...prev,
-        max_video_duration: type,
+        video_time: type,
       };
     });
   };
 
   const handleSave = () => {
     updateData({
-      type: questionData?.type,
+      type: selectedType?.title,
       question: questionData?.question,
       disqualify: questionData?.disqualify,
-      choices: choices,
+      choices: choices[0]?.value === "" ? [] : choices,
       other: questionData?.other,
       max_choice: questionData?.max_choice,
       max_video_duration: questionData?.max_video_duration,
@@ -321,7 +320,6 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
 
                     <div className="flex mt-[24px] mb-[41px] gap-[11px] items-center">
                       <input
-                        // value={questionData?.other === true ? "true" : "false"}
                         type="checkbox"
                         className="accent-[#087B2F] w-[18px] h-[18px]"
                         onChange={handleOther}

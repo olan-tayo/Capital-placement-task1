@@ -1,5 +1,9 @@
 import { ReactNode } from "react";
 
+type Choices = {
+  value: string;
+};
+
 export type TemplateProps = {
   title: string;
   children: ReactNode;
@@ -22,10 +26,6 @@ export type PersonalInfo = {
 export type QuestionsProps = {
   deleteQuestion: () => void;
   updateData: (newData: Data) => void;
-};
-
-type Choices = {
-  value: string;
 };
 
 export type Data = {
