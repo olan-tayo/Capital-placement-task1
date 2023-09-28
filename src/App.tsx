@@ -2,23 +2,62 @@ import "./App.css";
 import Sidebar from "./components/Sidebar";
 import Template from "./components/template";
 import upload from "../src/assets/image 308.svg";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import PersonalInfomation from "./containers/personalInfo/personalInfo";
 import AdditionalQuestion from "./containers/Additional Question";
+import { fetchData, updateData } from "./services/api";
+import Profile from "./containers/profile";
 
 function App() {
+  const [request, setRequest] = useState<any>({});
   type Image = null | string;
   const [image, setImage] = useState<Image>(null);
+
+  const handleUpdateImage = async (image: string) => {
+    const updatedRequest = {
+      ...request,
+      coverImage: image,
+    };
+    const newData = {
+      data: {
+        id: "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        type: "applicationForm",
+        attributes: updatedRequest,
+      },
+    };
+
+    try {
+      await updateData(newData);
+    } catch (error) {
+      // console.log(error);
+    }
+  };
 
   const handleSetFile = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let reader = new FileReader();
       reader.onload = function (e) {
         setImage(e?.target?.result as string);
+        handleUpdateImage(e?.target?.result as string);
       };
       reader.readAsDataURL(event.target.files[0]);
     }
   };
+  const handleGetData = async () => {
+    try {
+      const result = await fetchData();
+      setRequest(result?.data?.attributes);
+      setImage(result?.data?.attributes?.coverImage);
+    } catch (error) {
+      // console.log(error);
+    }
+  };
+
+  useEffect(() => {
+    handleGetData();
+  }, []);
+
+  console.log(image);
 
   return (
     <div className="bg-white">
@@ -157,12 +196,17 @@ function App() {
 
             {/* PERSONAL INFORMATION */}
             <div className="mb-[32px]">
-              <PersonalInfomation />
+              <PersonalInfomation request={request} />
+            </div>
+
+            {/* PROFILE */}
+            <div className="mb-[32px]">
+              <Profile request={request} />
             </div>
 
             {/* Additional questions*/}
             <div className="mb-[32px]">
-              <AdditionalQuestion />
+              <AdditionalQuestion request={request} />
             </div>
           </div>
         </div>

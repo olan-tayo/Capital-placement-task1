@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Template from "../../components/template";
 import { type Data } from "../../libs/types";
 import Question from "../../components/Questions";
 import edit from "../../assets/image 156.svg";
+import { updateData } from "../../services/api";
 
-const AdditionalQuestion = () => {
+const AdditionalQuestion = ({ request }: any) => {
   const time = [
     {
       title: "Minute",
@@ -14,16 +15,11 @@ const AdditionalQuestion = () => {
     },
   ];
   const [isAddQuestion, setIsAddQuestion] = useState<boolean>(false);
-  const [data, setData] = useState<Data[]>([]);
+  const [data, setData] = useState<Data[]>(request?.customisedQuestions);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [toggleTime, setToggleTime] = useState(false);
 
   const handleDeleteQuestion = () => {
-    setIsAddQuestion(false);
-  };
-
-  const handleSave = (newData: Data) => {
-    setData((prev) => [...prev, newData]);
     setIsAddQuestion(false);
   };
 
@@ -41,7 +37,7 @@ const AdditionalQuestion = () => {
     index: number
   ) => {
     let prevData = [...data];
-    prevData[index]["max_video_duration"] = Number(e.target.value);
+    prevData[index]["maxVideoDuration"] = Number(e.target.value);
   };
 
   const handleMaxChoice = (
@@ -49,7 +45,7 @@ const AdditionalQuestion = () => {
     index: number
   ) => {
     let prevData = [...data];
-    prevData[index]["max_choice"] = Number(e.target.value);
+    prevData[index]["maxChoice"] = Number(e.target.value);
   };
 
   const handleUpdateQuestion = (
@@ -88,26 +84,85 @@ const AdditionalQuestion = () => {
 
   const handleSelectTime = (index: number, time: string) => {
     let prevData = [...data];
-
-    prevData[index]["video_time"] = time;
+    prevData[index]["videoTime"] = time;
   };
 
-  const handleSavedQuestion = (index: number, type: string) => {
-    const prevData = [...data];
+  // UPDATE A QUESTION AND CALL ENDPOINT
+  const handleUpdateSavedQuestion = (
+    index: number,
+    question: Data,
+    type: string,
+    id: string
+  ) => {
+    const questions = data.map((questionData) => {
+      if (questionData.id === id) {
+        return {
+          ...questionData,
+          type: type?.replace(" ", ""),
+          id: question?.id,
+          question: question?.question,
+          disqualify: question?.disqualify,
+          choices: question?.choices,
+          other: question?.other,
+          maxChoice: question?.maxChoice || 0,
+          maxVideoDuration: question?.maxVideoDuration || 0,
+          videoTime: question?.videoTime || "",
+        };
+      }
+      return questionData;
+    });
 
-    prevData[index] = {
-      type: type,
-      question: data[index]?.question,
-      disqualify: data[index]?.disqualify,
-      choices: data[index]?.choices,
-      other: data[index]?.other,
-      max_choice: data[index]?.max_choice,
-      max_video_duration: data[index]?.max_video_duration,
-      video_time: data[index]?.video_time,
+    setData(questions);
+
+    handleUpdateQuestions(questions);
+  };
+
+  // CALL ENDPOINT TO UPDATE QUESTIONS
+  const handleUpdateQuestions = async (updatedData: Data[]) => {
+    let newUpdatedData = updatedData.map((item) => ({
+      ...item,
+      choices: Array.isArray(item.choices)
+        ? item.choices.map((choice) =>
+            typeof choice === "string" ? choice : choice?.value
+          )
+        : [],
+    }));
+
+    const updatedRequest = {
+      ...request,
+      customisedQuestions: newUpdatedData,
     };
-    setData(prevData);
-    setSelectedIndex(null);
+
+    const newData = {
+      data: {
+        id: "497f6eca-6276-4993-bfeb-53cbbbba6f08",
+        type: "applicationForm",
+        attributes: updatedRequest,
+      },
+    };
+
+    try {
+      await updateData(newData);
+      setSelectedIndex(null);
+    } catch (error) {
+      // console.log(error);
+    }
   };
+
+  // CREATE A NEW QUESTION
+  const handleSave = (newData: Data) => {
+    let updatedNewData = {
+      ...newData,
+      type: newData?.type?.replace(" ", ""),
+    };
+    setData((prev) => [...prev, newData]);
+    handleUpdateQuestions([...data, updatedNewData]);
+
+    setIsAddQuestion(false);
+  };
+  useEffect(() => {
+    setData(request?.customisedQuestions);
+  }, [request]);
   return (
     <div>
       <Template title="Additional questions">
@@ -152,7 +207,7 @@ const AdditionalQuestion = () => {
                       />
                     </div>
 
-                    {(questions?.type === "Multiple choice" ||
+                    {(questions?.type === "Multiple Choice" ||
                       questions?.type === "Dropdown") && (
                       <div className="flex mt-[24px] mb-[41px] gap-[11px] items-center">
                         <input
@@ -167,7 +222,7 @@ const AdditionalQuestion = () => {
                       </div>
                     )}
 
-                    {(questions?.type === "Multiple choice" ||
+                    {(questions?.type === "Multiple Choice" ||
                       questions?.type === "Dropdown") && (
                       <div>
                         <p className="mt-[30px] text-xl font-medium leading-[114%] text-[#000] mb-[7px] pl-[36px]">
@@ -243,14 +298,14 @@ const AdditionalQuestion = () => {
                     )}
 
                     {/* Max choice allowed */}
-                    {questions?.type === "Multiple choice" && (
+                    {questions?.type === "Multiple Choice" && (
                       <div>
                         <p className="mb-2 text-xl font-semibold leading-[114%] mt-[50px]">
                           Max choice allowed
                         </p>
 
                         <input
-                          defaultValue={questions?.max_choice}
+                          defaultValue={questions?.maxChoice}
                           onChange={(event) => handleMaxChoice(event, index)}
                           type="number"
                           className="border-[#000] border-[1px] rounded-[5px] w-full h-[68px] px-[26px] outline-none text-[#979797] text-sm font-medium leading-[159.5%]"
@@ -260,14 +315,14 @@ const AdditionalQuestion = () => {
                     )}
 
                     {/* Video */}
-                    {questions?.type === "Video question" && (
+                    {questions?.type === "Video Question" && (
                       <div className="flex items-center gap-[20px] mt-[30px]">
                         <div className="w-[60%]">
                           <input
                             onChange={(event) =>
                               handleMaxDuration(event, index)
                             }
-                            defaultValue={questions?.max_video_duration}
+                            defaultValue={questions?.maxVideoDuration}
                             type="number"
                             className="border-[#000] border-[1px] rounded-[5px] w-full h-[68px] px-[26px] outline-none text-[#979797] text-sm font-medium leading-[159.5%]"
                             placeholder="Max duration of video"
@@ -280,7 +335,7 @@ const AdditionalQuestion = () => {
                               className="h-[68px] w-full flex px-[26px] cursor-pointer justify-between items-center rounded-[5px] border-[#000] border-[1px]"
                             >
                               <p className="text-[#979797] text-sm font-medium leading-[159.5%]">
-                                {questions?.video_time || "in (sec/min)"}
+                                {questions?.videoTime || "in (sec/min)"}
                               </p>
                               <div className="">
                                 <svg
@@ -314,7 +369,7 @@ const AdditionalQuestion = () => {
                                       }
                                       key={videoindex}
                                       className={`${
-                                        questions?.video_time === time?.title
+                                        questions?.videoTime === time?.title
                                           ? "bg-[#9C4DE2] text-white"
                                           : "text-[#000]"
                                       }`}
@@ -368,7 +423,12 @@ const AdditionalQuestion = () => {
                         <button
                           className="bg-[#087B2F] h-[35px] w-[59px] text-[#F4FBF7] text-sm text-semibold rounded-[5px]"
                           onClick={() =>
-                            handleSavedQuestion(index, questions?.type)
+                            handleUpdateSavedQuestion(
+                              index,
+                              questions,
+                              questions?.type,
+                              questions?.id
+                            )
                           }
                         >
                           Save

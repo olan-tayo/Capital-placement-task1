@@ -17,10 +17,11 @@ export type SwitchProps = {
 };
 
 export type PersonalInfo = {
+  id: string;
   title: string;
   value: string;
-  internal: boolean;
-  hide: boolean;
+  internalUse: boolean;
+  show: boolean;
 };
 
 export type QuestionsProps = {
@@ -29,12 +30,41 @@ export type QuestionsProps = {
 };
 
 export type Data = {
+  id: string;
   type: string;
   question: string;
   disqualify: boolean;
   choices: Choices[];
   other: boolean;
-  max_choice: number;
-  max_video_duration: number;
-  video_time: string | null;
+  maxChoice: number;
+  maxVideoDuration: number;
+  videoTime: string | null;
+};
+
+export type Info = {
+  internalUse: boolean;
+  show: boolean;
+};
+
+export type PersonalInfoRequest = {
+  choices: string[];
+  disqualify: boolean;
+  id: string;
+  maxChoice: number;
+  other: boolean;
+  question: string;
+  type: string;
+};
+
+export type Request = {
+  currentResidence: Info;
+  dateOfBirth: Info;
+  emailId: Info;
+  firstName: Info;
+  gender: Info;
+  idNumber: Info;
+  lastName: Info;
+  nationality: Info;
+  personalQuestions: PersonalInfoRequest[];
+  phoneNumber: Info;
 };

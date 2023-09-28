@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import { type QuestionsProps } from "../../libs/types";
+import { GenerateRandomStrings } from "../RandomStrings/GenerateRandomStrings";
 
 const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
   const [questionData, setQuestionData] = useState({
+    id: "",
     type: "",
     question: "",
     disqualify: false,
     choices: [],
     other: false,
-    max_choice: 0,
-    max_video_duration: 0,
-    video_time: "",
+    maxChoice: 0,
+    maxVideoDuration: 0,
+    videoTime: "",
   });
   const [toggleType, setToggleType] = useState(false);
   const [selectedType, setSelectedType] = useState({ title: "Paragraph" });
@@ -27,7 +29,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
       title: "Paragraph",
     },
     {
-      title: "Short answer",
+      title: "Short Answer",
     },
     {
       title: "Yes/No",
@@ -36,7 +38,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
       title: "Dropdown",
     },
     {
-      title: "Multiple choice",
+      title: "Multiple Choice",
     },
     {
       title: "Date",
@@ -45,10 +47,10 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
       title: "Number",
     },
     {
-      title: "File upload",
+      title: "File Upload",
     },
     {
-      title: "Video question",
+      title: "Video Question",
     },
   ];
 
@@ -78,21 +80,22 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
     setQuestionData((prev: any) => {
       return {
         ...prev,
-        video_time: type,
+        videoTime: type,
       };
     });
   };
 
   const handleSave = () => {
     updateData({
+      id: GenerateRandomStrings(),
       type: selectedType?.title,
       question: questionData?.question,
       disqualify: questionData?.disqualify,
       choices: choices[0]?.value === "" ? [] : choices,
       other: questionData?.other,
-      max_choice: questionData?.max_choice,
-      max_video_duration: questionData?.max_video_duration,
-      video_time: questionData?.video_time,
+      maxChoice: questionData?.maxChoice,
+      maxVideoDuration: questionData?.maxVideoDuration,
+      videoTime: questionData?.videoTime,
     });
   };
 
@@ -135,7 +138,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
     setQuestionData((prev) => {
       return {
         ...prev,
-        max_choice: Number(e.target.value),
+        maxChoice: Number(e.target.value),
       };
     });
   };
@@ -144,7 +147,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
     setQuestionData((prev) => {
       return {
         ...prev,
-        max_video_duration: Number(e.target.value),
+        maxVideoDuration: Number(e.target.value),
       };
     });
   };
@@ -249,7 +252,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
                 )}
 
                 {/* CHOICE */}
-                {(selectedType?.title === "Multiple choice" ||
+                {(selectedType?.title === "Multiple Choice" ||
                   selectedType?.title === "Dropdown") && (
                   <>
                     <p className="mt-[30px] text-xl font-medium leading-[114%] text-[#000] mb-[7px] pl-[36px]">
@@ -332,7 +335,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
                 )}
 
                 {/* Max choice allowed */}
-                {selectedType?.title === "Multiple choice" && (
+                {selectedType?.title === "Multiple Choice" && (
                   <div>
                     <p className="mb-2 text-xl font-semibold leading-[114%] mt-[50px]">
                       Max choice allowed
@@ -348,7 +351,7 @@ const Question = ({ deleteQuestion, updateData }: QuestionsProps) => {
                 )}
 
                 {/* Video */}
-                {selectedType?.title === "Video question" && (
+                {selectedType?.title === "Video Question" && (
                   <div className="flex items-center gap-[20px] mt-[30px]">
                     <div className="w-[60%]">
                       <input
